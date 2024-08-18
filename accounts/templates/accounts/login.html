@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>로그인</title>
+    <link rel="stylesheet" href="../css/logindesign.css">
+</head>
+<body>
+    <div class="container">
+        <h2>로그인</h2>
+        <br><br>
+        <div class="loginbox">
+            <form>
+                <fieldset>
+                    <h3>로그인</h3>
+                    <label for="user-id"></label>
+                    <input type="text" id="user-id" placeholder="id">
+                    <label for="password"></label>
+                    <input type="password" id="password" placeholder="password"> <br>
+                    <button type="submit" id="loginbtn">로그인</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="checkbox-container">
+            <label><input type="checkbox" name="jj" value="loginyj" class="smaller">로그인 상태 유지</label>
+            <label><input type="checkbox" name="jj" value="idjj" class="smaller">아이디 저장</label>
+        </div>
+        <div class="oneline">
+            <a href="#" class="none">아이디 찾기 </a>
+            <a href="#" class="none"> 비밀번호 찾기 </a>
+            <a href="#" id="sign" class="none"> 회원가입</a>
+        </div>
+    </div>
+    <script src="../js/로그인페치.js"></script>
+</body>
+</html>

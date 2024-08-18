@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>Blog List</title>
+    </head>
+    <body>
+        <h1>챌린지 목록 열람중입니다</h1>
+        <table>
+        {% for list in challengelist %}
+            <ul>
+                <li>{{list.challenge_title}}</li>
+                <li>{{list.contents}}</li>
+            </ul>
+        {% endfor %}
+        </table>
+    </body>
+</html>

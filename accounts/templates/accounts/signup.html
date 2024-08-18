@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>email 회원가입</title>
+    <link rel="stylesheet" href="../css/회원가입선택.css">
+</head>
+<body>
+    <form action="" method="POST" id="signup_page">
+        {% csrf_token %}
+    <div class="container">
+        <form>
+            <fieldset>
+                <ul class="list">
+                    <h2>회원가입</h2>
+                    <li>
+                        <label for="name"></label>
+                        <input type="text" id="name" placeholder="이름">
+                    </li>
+                    <li>
+                        <label for="ID"></label>
+                        <input id="ID" type="text" placeholder="아이디">
+                        <input type="button" id="idbtn" name="중복확인" value="중복확인">
+                    </li>
+                    <li>
+                        <label for="password"></label>
+                        <input id="password" type="text" placeholder="비밀번호">
+                    </li>
+                    <li>
+                        <label for="passwordcheck"></label>
+                        <input id="passwordcheck" type="text" placeholder="비밀번호 확인">
+                    </li>
+                </ul>
+            </fieldset>
+            <fieldset id="secondBox">
+                <ul>
+                    <li>
+                        <label for="email"></label>
+                        <input id="email" type="email" placeholder="email입력">
+                        <input type="button" id="emailbtn" name="확인" value="확인">
+                </ul>
+            </fieldset>
+            <button type="submit" id="sign">가입하기</button>
+        </form>
+    </div>
+    <script src="../js/email회원가입패치.js"></script>
+</body>
+</html>

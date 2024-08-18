@@ -1,0 +1,176 @@
+:root {
+    --main-color: #080808; /* 메인 색상 설정 */
+    --secondary-color: #ffffff;
+    --accent-color: #f5f6f7; /* 강조 색상 등 추가로 설정 가능 */
+}
+
+body, h1, a, button {
+    font-family: 'Hahmlet', serif; /* 폰트 적용 */
+}
+
+.bookmark {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.bookmarked {
+    color: gold;
+}
+
+.liked {
+    color: red;
+}
+
+.container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+}
+
+
+.post {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.box {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.profile {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+#name {
+    margin-left: 10px;
+}
+
+.description {
+    margin-top: 10px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.button {
+    margin-top: 20px;
+}
+
+.button button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0%;
+    background-color: #0e0d0e;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button button a {
+    color: white;
+    text-decoration: none;
+}
+
+.apply-button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0%;
+    background-color: #0e0d0e;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.apply-button a {
+    color: white;
+    text-decoration: none;
+}
+
+.apply-button h1, .apply-button h3,
+.button button h1, .button button h3 {
+    margin: 0;
+}
+
+hr {
+    width: 100%;
+}
+
+.form-0 {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+}
+
+.form-1 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.write-1, .write-2, .write-3, .write-4, .write-5 {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.write-1 {
+    font-size: 16px;
+    background-color: #f5f6f7;
+    border: 1px solid #ccc;
+}
+
+.write-2 {
+    font-size: 14px;
+    background-color: #f5f6f7;
+    border: 1px solid #ccc;
+    resize: none;
+}
+
+.write-3 {
+    padding: 10px;
+    border: none;
+}
+
+.write-4, .write-5 {
+    border: none;
+    background-color: #0e0e0e;
+    color: white;
+    cursor: pointer;
+}
+
+.photo-icon {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.box2 {
+    border: 2px solid #000; /* 테두리 설정 */
+    padding: 20px; /* 박스 안쪽 여백 */
+    height: 200px;
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin: 20px;
+    width: 500px; /* 박스 너비 설정 */
+    border-radius: 5%;
+}

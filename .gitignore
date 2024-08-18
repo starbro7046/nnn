@@ -1,0 +1,14 @@
+# Python 파일
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.env
+
+# 환경 설정 파일
+.env
+.vscode/
+.idea/
+
+# 미디어 파일
+/media/

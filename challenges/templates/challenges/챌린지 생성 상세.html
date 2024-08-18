@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="csrf-token" content="your_csrf_token_here">
+<title>게시판 작성 페이지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@100..900&family=IBM+Plex+Sans+KR:wght@100;200;300;400;500;600;700&family=Nanum+Gothic:wght@400;700;800&family=Orbit&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../hicc summer project/css/챌린지 생성.css">
+<script src="../jss/챌린지 생성.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<style>
+  /* 기본 스타일 */
+  * {
+    color: black;
+    box-sizing: border-box;
+  }
+
+  body, html {
+    font-family: "Hahmlet", serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  .container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  nav ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  nav ul li {
+    margin-bottom: 10px;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  input[type="number"],
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .form-0 {
+    margin-top: 20px;
+  }
+
+  input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  iframe {
+    width: 100%;
+    height: 400px;
+    border: none;
+    margin-bottom: 20px;
+  }
+
+  /* 반응형 스타일 */
+  @media screen and (max-width: 768px) {
+    h3 {
+      font-size: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    iframe {
+      height: 300px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    textarea {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .container {
+      padding: 10px;
+    }
+
+    h3 {
+      font-size: 18px;
+    }
+
+    button {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    input[type="submit"] {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    iframe {
+      height: 250px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <button id="fetchDataBtn">Fetch Data</button>
+  <pre id="dataDisplay">Data will be displayed here...
+  </pre>
+
+  <div class="container">
+    <h3>카테고리</h3>
+    <nav>
+      <ul>
+        <li>
+          <form>
+            <input type="radio" id="option1" name="option" value="1">
+            <label for="option1">공부</label>
+            <input type="radio" id="option2" name="option" value="2">
+            <label for="option2">춤</label>
+            <input type="radio" id="option3" name="option" value="3">
+            <label for="option3">노래</label>
+            <input type="radio" id="option3" name="option" value="3">
+            <label for="option3">기타</label>
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <h3>공개 설정</h3>
+    <nav>
+      <ul>
+        <li>
+
+          <input type="radio" id="option1" name="option" value="1">
+          <label for="option1">공개</label>
+          <input type="radio" id="option2" name="option" value="2">
+          <label for="option2">비공개</label>
+        </li>
+      </ul>
+    </nav>
+    <h3>참여 인원</h3>
+    <input type="number" placeholder="참가 인원수"><br><br><br>
+    <div class='form-0'>
+      <form class='form-1' action="write_process_board.php" method="POST" enctype="multipart/form-data">
+        <input class='write-1' type="text" name="title" maxlength="44" placeholder="제목 입력, 최대 44자까지 가능합니다" required>
+        <hr>
+        <textarea class='write-2' name="detail" rows="20" cols="20" maxlength="254" placeholder="내용 작성, 최대 254자 가능합니다" required></textarea>
+        <input class='write-3' type="file" name="file" id="fileToUpload">
+        <hr>
+      </form>
+      <form action="챌린지 생성완료.html">
+        <input class='write-4' type="submit" value="올리기">
+      </form>
+    </div>
+  </div>
+
+<!-- 챌린지 생성 버튼 -->
+<button id="create-challenge-button">챌린지 생성</button>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+
+
+<script>
+    document.getElementById('create-challenge-button').addEventListener('click', async () => {
+        const token = 'your_token_here'; // 실제 토큰으로 대체
+        const board = '단기'; // 장기 또는 단기로 대체
+
+        const requestBody = {
+            images: [
+                {
+                    fileName: "image1.jpg",
+                    fileNameExtension: "JPG",
+                    key: "JPG/image1.jpg"
+                }
+            ],
+            video: {
+                fileName: "video1.mp4",
+                fileNameExtension: "MP4",
+                key: "MP4/video1.mp4"
+            },
+            audio: {
+                fileName: "audio1.mp3",
+                fileNameExtension: "MP3",
+                key: "MP3/audio1.mp3"
+            },
+            board: board, // 장기 또는 단기
+            subject: "글 제목", // 실제 제목으로 대체
+            content: "챌린지 내용", // 실제 내용으로 대체
+            isPublic: true, // true 또는 false로 대체
+            duration: board === "장기" ? "30일" : null // 장기 챌린지의 경우 기간 설정
+        };
+
+        try {
+            const response = await axios.post(`/api/challenges/${board}/post`, requestBody, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 201) {
+                console.log('챌린지 생성 성공:', response.data);
+                // 추가 작업 (예: 성공 메시지 표시, 페이지 리다이렉트 등)
+            }
+        } catch (error) {
+            if (error.response) {
+                // 서버에서 오류 응답을 반환한 경우
+                if (error.response.status === 400) {
+                    console.error('잘못된 요청: 요청 데이터를 확인하세요.');
+                } else if (error.response.status === 401) {
+                    console.error('인증 오류: 토큰이 유효하지 않거나 만료되었습니다.');
+                } else if (error.response.status === 500) {
+                    console.error('서버 오류: 서버에서 문제가 발생했습니다.');
+                } else {
+                    console.error(`오류 발생: ${error.response.status} - ${error.response.data}`);
+                }
+            } else {
+                // 요청이 서버에 도달하지 못한 경우
+                console.error('네트워크 오류 또는 요청이 서버에 도달하지 못했습니다.');
+            }
+        }
+    });
+</script>
+</body>
+</html>
