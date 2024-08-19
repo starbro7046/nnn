@@ -1,6 +1,6 @@
 from django.db import models
-from . import Users  #Users를 import
+from . import UsersModel
 class Login(models.Model):
-    username = models.ForeignKey(Users, on_delete=models.CASCADE)
+    username = models.ForeignKey(UsersModel, on_delete=models.CASCADE)
     email = models.EmailField()
     password = models.CharField(max_length=15)

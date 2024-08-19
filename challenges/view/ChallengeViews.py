@@ -1,10 +1,10 @@
-from .models import *
-from .models import *
-import json
+from ..models.ChallengesModel import Challenges
+from ..models.PostModel import Post
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .forms import challengeForm
+from ..forms import ChallengeForm
+
 
 def challenge_list(request):
     challengelist = Challenges.objects.all()
@@ -23,7 +23,7 @@ def challenge_create(request):
             challenge.author = request.user
             challenge.created_date = timezone.now()
 
-            challenge.save()  #DB에 적용
+            challenge.save()  # DB에 적용
 
             # 방금 생성한 PK와 일치하는 챌린지의 상세페이지로 이동
             return redirect('challenge_detail', pk=challenge.pk)
