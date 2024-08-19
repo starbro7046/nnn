@@ -8,14 +8,23 @@ class Users(models.Model):
 
 
 class Challenges(models.Model):
+    board_option1 = 'LONG_TERM'
+    board_option2 = 'SHORT_TERM'
+
+    board_choices = [
+        (board_option1, 'LONG_TERM'),
+        (board_option2, 'SHORT_TERM'),
+    ]
+
     challenge_title = models.CharField(max_length=100)
     duration = models.IntegerField(default=0)
     created_username = models.ForeignKey(Users, on_delete=models.CASCADE)
     challenge_content = models.TextField()
-    board = models.CharField(max_length=5)
+    board = models.CharField(max_length=20, choices=board_choices, default=board_option1)
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
+
 
 
 class Post(models.Model):

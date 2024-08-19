@@ -142,3 +142,4 @@ def delete_account_view(request, username):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
