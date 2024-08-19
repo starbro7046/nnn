@@ -1,8 +1,7 @@
 from ..models import *
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.contrib.auth.models import User
-from ..forms import ChallengeForm
+from ..forms.ChallengeForm import challengeForm
 
 
 def challenge_list(request):
@@ -17,6 +16,7 @@ def challenge_detail(request, challenge_id):
 
 def challenge_create(request):
     if request.method == "POST":
+        form = challengeForm(request.POST)
         if form.is_valid():
             challenge = form.save(commit=False)
             challenge.author = request.user
@@ -27,9 +27,7 @@ def challenge_create(request):
             # 방금 생성한 PK와 일치하는 챌린지의 상세페이지로 이동
             return redirect('challenge_detail', pk=challenge.pk)
 
-    # POST 요청이 없는 경우
     else:
-        # 빈 폼 전달
         form = challengeForm()
 
     # 챌린지 생성 페이지
