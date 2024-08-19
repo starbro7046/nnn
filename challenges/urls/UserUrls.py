@@ -9,5 +9,8 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # 토큰
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', UserViews.logout_view, name='logout'),  # 로그아웃
-    path('<str:username>/', UserViews.delete_account_view, name='delete_account'),  # 회원탈퇴
+    path('delte/', UserViews.delete_account_view, name='delete_account'),  # 회원탈퇴
+    path('changepwd/', UserViews.change_password_view, name='change_password'),  #비밀번호 변경
+    path('findname/', UserViews.find_username_view, name='findname'),  #아이디찾기
+    path('findpwd/', UserViews.find_password_view, name='findpwd'),   #비밀번호찾기
 ]
