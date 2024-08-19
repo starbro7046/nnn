@@ -12,5 +12,5 @@ urlpatterns = [
     path('delte/', UserViews.delete_account_view, name='delete_account'),  # 회원탈퇴
     path('changepwd/', UserViews.change_password_view, name='change_password'),  #비밀번호 변경
     path('findname/', UserViews.find_username_view, name='findname'),  #아이디찾기
-    path('findpwd/', UserViews.find_password_view, name='findpwd'),   #비밀번호찾기
+    path('resetpwd/', UserViews.reset_password_view, name='resetpwd'),   #비밀번호찾기,변경(이메일로 랜덤비밀번호발송)
 ]

@@ -209,7 +209,7 @@ def find_username_view(request: HttpRequest) -> JsonResponse:
 
 
 
-#1-7. 비밀번호찾기
+#1-7. 비밀번호찾기,변경
 
 import random    #랜덤비밀번호
 import string
