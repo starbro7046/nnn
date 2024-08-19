@@ -1,4 +1,5 @@
 from django.db import models
+from .UsersModel import Users
 
 
 class Challenges(models.Model):

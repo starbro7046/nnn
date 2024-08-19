@@ -1,10 +1,9 @@
-from .models import Challenges
+from ..models import ChallengesModel
 from django import forms
-from .models import Users
 
 class challengeForm(forms.ModelForm):
     class Meta:
-        model = Challenges
+        model = ChallengesModel
         fields = ('challenge_title', 'created_username', 'challenge_content', 'board',
                   'created_date', 'start_date','end_date', 'duration')
 

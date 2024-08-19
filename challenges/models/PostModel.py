@@ -1,4 +1,5 @@
 from django.db import models
+from UsersModel import Users
 
 class Post(models.Model):
     username = models.ForeignKey(Users, on_delete=models.CASCADE)
