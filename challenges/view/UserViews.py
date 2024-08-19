@@ -1,4 +1,4 @@
-#from .models import *
+# from .models import *
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.middleware.csrf import get_token
@@ -12,19 +12,23 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 import json
+
+
 # 0.Test code-----------------------------------------------------------------------------------------------------
 def test(request: HttpRequest) -> HttpResponse:
     return HttpResponse(str(request.GET.items()))
 
-#1. user signup,login,logout,delete ------------------------------------------------------------------------------
+
+# 1. user signup,login,logout,delete ------------------------------------------------------------------------------
 
 # CSRF 토큰을 포함한 페이지를 반환하여 Postman 등의 도구에서 사용할 수 있게 함
 def csrf_token_view(request: HttpRequest) -> JsonResponse:
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
-#1-1. 회원가입
-#@csrf_exempt
+
+# 1-1. 회원가입
+# @csrf_exempt
 @csrf_protect
 @permission_classes([AllowAny])
 def signup_view(request: HttpRequest) -> JsonResponse:
@@ -62,8 +66,8 @@ def signup_view(request: HttpRequest) -> JsonResponse:
     #     return render(request, 'challenge/signup.html')
 
 
-#1-2. 로그인
-#@csrf_exempt
+# 1-2. 로그인
+# @csrf_exempt
 @csrf_protect
 def login_view(request: HttpRequest) -> JsonResponse:
     if request.method == 'POST':
@@ -100,7 +104,7 @@ def login_view(request: HttpRequest) -> JsonResponse:
         return JsonResponse({'error': '잘못된 요청'}, status=400)
 
 
-#1-3. 로그아웃(확인해보지못함)
+# 1-3. 로그아웃(확인해보지못함)
 @api_view(['POST'])
 def logout_view(request):
     try:
@@ -120,7 +124,8 @@ def logout_view(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-#1-4. 회원탈퇴
+
+# 1-4. 회원탈퇴
 
 @csrf_protect
 @api_view(['DELETE'])
@@ -143,3 +148,106 @@ def delete_account_view(request, username):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+# 1-5. 비밀번호 변경 (인증없이 새 비밀번호 변경)
+@csrf_protect
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password_view(request: HttpRequest) -> JsonResponse:
+    try:
+        user = request.user
+        data = json.loads(request.body)
+
+        #현재 비밀번호, 새 비밀번호 입력받음
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+
+        #입력하지 않으면 에러
+        if not current_password or not new_password:
+            return JsonResponse({'error': '현재 비밀번호와 새 비밀번호를 모두 입력해야 합니다.'}, status=400)
+
+        # 현재 비밀번호 확인
+        if not user.check_password(current_password):
+            return JsonResponse({'error': '현재 비밀번호가 올바르지 않습니다.'}, status=400)
+
+        # 새 비밀번호 설정
+        user.set_password(new_password)
+        user.save()
+
+        return JsonResponse({'message': '비밀번호가 성공적으로 변경되었습니다.'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': '잘못된 JSON 형식입니다.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+#1-6. 아이디찾기
+
+# 1-6. 아이디 찾기
+@csrf_protect
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def find_username_view(request: HttpRequest) -> JsonResponse:
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+
+        if not email:
+            return JsonResponse({'error': '이메일을 입력해야 합니다.'}, status=400)
+
+        # 이메일로 사용자 찾기
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            return JsonResponse({'error': '해당 이메일로 등록된 사용자를 찾을 수 없습니다.'}, status=404)
+
+        return JsonResponse({'message': '아이디 찾기 성공', 'username': user.username}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': '잘못된 JSON 형식입니다.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+#1-7. 비밀번호찾기
+
+import random    #랜덤비밀번호
+import string
+from django.core.mail import send_mail
+@csrf_protect
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password_view(request: HttpRequest) -> JsonResponse:
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+
+        if not email:
+            return JsonResponse({'error': '이메일을 입력해야 합니다.'}, status=400)
+
+        # 이메일로 사용자 찾기
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            return JsonResponse({'error': '해당 이메일로 등록된 사용자를 찾을 수 없습니다.'}, status=404)
+
+        # 임시 비밀번호 생성
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        user.set_password(temp_password)
+        user.save()
+
+        # 임시 비밀번호를 이메일로 전송
+        send_mail(
+            '비밀번호 재설정',
+            f'임시 비밀번호는 {temp_password}입니다. 로그인 후 비밀번호를 변경해주세요.',
+            'from@gmail.com',  # 발신자 이메일  (어떤 이메일로 보내는지?)
+            [email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({'message': '임시 비밀번호가 이메일로 전송되었습니다.'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': '잘못된 JSON 형식입니다.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

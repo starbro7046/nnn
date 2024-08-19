@@ -1,5 +1,4 @@
 from django.db import models
-from datetime import datetime
 
 class Users(models.Model):
     username = models.CharField(primary_key=True, max_length=20)
