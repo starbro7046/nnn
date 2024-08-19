@@ -139,3 +139,4 @@ def delete_account_view(request, username):
         return JsonResponse({'message': '회원 탈퇴 성공'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
