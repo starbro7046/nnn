@@ -1,6 +1,6 @@
-from .models import Challenges
+
 from django import forms
-from .models import Users
+from ..models import Users
 
 class SignUpForm(forms.ModelForm):
     class Meta:
