@@ -1,6 +1,6 @@
 #from .models import *
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.middleware.csrf import get_token
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from rest_framework.permissions import AllowAny
@@ -24,6 +24,7 @@ def csrf_token_view(request: HttpRequest) -> JsonResponse:
     return JsonResponse({'csrfToken': csrf_token})
 
 #1-1. 회원가입
+#@csrf_exempt
 @csrf_protect
 @permission_classes([AllowAny])
 def signup_view(request: HttpRequest) -> JsonResponse:
@@ -57,11 +58,12 @@ def signup_view(request: HttpRequest) -> JsonResponse:
             return JsonResponse({'error': '잘못된 JSON 형식입니다.'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-    elif request.method == 'GET':
-        return render(request, 'challenge/signup.html')
+    # elif request.method == 'GET':
+    #     return render(request, 'challenge/signup.html')
 
 
 #1-2. 로그인
+#@csrf_exempt
 @csrf_protect
 def login_view(request: HttpRequest) -> JsonResponse:
     if request.method == 'POST':
