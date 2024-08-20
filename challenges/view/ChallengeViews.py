@@ -113,11 +113,6 @@ def challenge_list(request):
 
 #챌린지에 참여한 다른 사람들의 인증글 확인
 
-
-
-
-
-
 def challenge_detail(request, challenge_id):
     challenge = get_object_or_404(Post, pk=challenge_id)
     return render(request, 'challenges/글열람.html', {'challenge': challenge})
