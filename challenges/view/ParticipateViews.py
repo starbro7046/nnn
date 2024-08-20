@@ -18,7 +18,7 @@ from django.shortcuts import get_object_or_404
 #챌린지 참가 버튼
 
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])  //로그인한사용자만
+@permission_classes([IsAuthenticated])  #로그인한사용자만
 def participate_in_challenge(request, challenge_id):
     try:
         data = request.data

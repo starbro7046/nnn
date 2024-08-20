@@ -28,6 +28,7 @@ class Challenges(models.Model):
 
 
 class Post(models.Model):
+    post_id = models.AutoField(primary_key=True)   #postid추가
     username = models.ForeignKey(Users, on_delete=models.CASCADE)
     challenge_id = models.ForeignKey(Challenges, on_delete=models.CASCADE)
     post_title = models.CharField(max_length=100)
@@ -66,7 +67,7 @@ class Login(models.Model):
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     expired_date = models.DateField()
 
-
+#추가: 챌린지에 참가한 사람 정보
 class ChallengeParticipation(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenges, on_delete=models.CASCADE)
@@ -74,3 +75,14 @@ class ChallengeParticipation(models.Model):
 
     class Meta:
         unique_together = ('user', 'challenge')
+
+#추가: 좋아요
+class Like(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'  #목록표시 시

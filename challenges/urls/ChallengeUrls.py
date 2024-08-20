@@ -4,6 +4,5 @@ from ..view import ChallengeViews as views
 urlpatterns = [
     path('', views.challenge_list),
     path('create/', views.challenge_create, name='create_challenge'),
-    path('<str:board>/<int:challenge_id>/', views.challenge_detail, name='challenge_detail'),
-    path('<str:board>/list', views.challenge_list, name='challenge_list'),
+    path('<str:board>/<int:challenge_id>/', views.challenge_detail, name='challenge_detail')
 ]

@@ -8,15 +8,19 @@ import json
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+
+
+
 #챌린지 생성
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def challenge_create(request):
     if request.method == "POST":
+
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)
+            user = request.user
 
-            user = get_object_or_404(Users, username=request.user.username)
 
             # 필수 필드 추출
             board = data.get('board')
@@ -28,19 +32,19 @@ def challenge_create(request):
             duration = int(''.join(filter(str.isdigit, duration_str)))
 
 
-
             # 필수 필드 검증
             if not board or not challenge_title or not challenge_content:
                 return JsonResponse({'status': 'error', 'message': '필수 필드가 누락되었습니다.'}, status=400)
 
             # 새로운 챌린지 인스턴스 생성
             challenge = Challenges(
-                created_username=Users.objects.filter(username=request.user.username).first(),
+                created_username=user,
                 challenge_title=challenge_title,
                 challenge_content=challenge_content,
                 board='LONG_TERM' if board == '장기' else 'SHORT_TERM',
                 created_date=timezone.now(),
                 start_date=timezone.now().date(),
+
                 end_date=timezone.now().date() + timezone.timedelta(days=duration) #duration 값을 int로 변환후 days = duration 해야함
             )
 
@@ -65,44 +69,9 @@ def challenge_create(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 #챌린지 목록 조회
-def challenge_list(request, board):
-    try:
-        # 페이지와 사이즈 파라미터 가져오기
-        page = int(request.GET.get('page', 1))
-        size = int(request.GET.get('size', 10))
-
-        # 필터링할 board 값
-        if board not in ['LONG_TERM', 'SHORT_TERM']:
-            return JsonResponse({'error': 'Invalid board parameter'}, status=400)
-
-        # 챌린지 목록 조회
-        challenges = Challenges.objects.filter(board=board)
-
-        # 페이징 처리
-        paginator = Paginator(challenges, size)
-        page_obj = paginator.get_page(page)
-
-        # 결과를 JSON 형식으로 변환
-        response_data = {
-            'page': page_obj.number,
-            'size': size,
-            'totalPages': paginator.num_pages,
-            'totalItems': paginator.count,
-            'posts': [
-                {
-                    'challenge_id': challenge.id,
-                    'challenge_title': challenge.challenge_title,
-                    'created_username': challenge.created_username.username,
-                }
-                for challenge in page_obj.object_list
-            ]
-        }
-
-        return JsonResponse(response_data, safe=False)
-
-    except Exception as e:
-        # 서버 오류 처리
-        return JsonResponse({'error': str(e)}, status=500)
+def challenge_list(request):
+    challengelist = Challenges.objects.all()
+    return render(request, 'challenges/challengeList.html', {'challengelist': challengelist})
 
 
 #챌린지 상세 조회
@@ -138,6 +107,11 @@ def challenge_detail(request, board, challenge_id):
         # 서버 오류
         return JsonResponse({'status': 'error', 'message' : str(e)}, status=500)
 
+#챌린지 생성(장기)
+
+
+
+#챌린지 생성(단기)
 
 #챌린지 참가 버튼
 

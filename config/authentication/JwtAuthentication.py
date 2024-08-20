@@ -26,10 +26,13 @@ class JwtAuthentication(BaseAuthentication):
 
             if not user:
                 raise AuthenticationFailed("User does not exist")
-            return user, None
+            return (user, None)   #user, None에서 수정
 
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Jwt expired")
         except jwt.DecodeError as e:
             raise AuthenticationFailed(f'Jwt decode error: {e}')
+        except Users.DoesNotExist:
+            raise AuthenticationFailed("User does not exist")
+        # 추가된 부분: 사용자가 데이터베이스에 없는 경우 처리
 
