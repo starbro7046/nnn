@@ -12,16 +12,11 @@ from rest_framework.permissions import IsAuthenticated
 #@permission_classes([IsAuthenticated])
 def challenge_create(request):
     if request.method == "POST":
-        if request.user.is_anonymous:
-            return JsonResponse({'status': 'error', 'message': '사용자가 로그인되지 않았습니다.'}, status=401)
-
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)
 
-            user = request.user
-            if user.is_anonymous:
-                return JsonResponse({'status': 'error', 'message': '사용자가 인증되지 않았습니다.'}, status=401)
+            user = get_object_or_404(Users, username=request.user.username)
 
             # 필수 필드 추출
             board = data.get('board')
@@ -33,19 +28,19 @@ def challenge_create(request):
             duration = int(''.join(filter(str.isdigit, duration_str)))
 
 
+
             # 필수 필드 검증
             if not board or not challenge_title or not challenge_content:
                 return JsonResponse({'status': 'error', 'message': '필수 필드가 누락되었습니다.'}, status=400)
 
             # 새로운 챌린지 인스턴스 생성
             challenge = Challenges(
-                created_username=user,
+                created_username=Users.objects.filter(username=request.user.username).first(),
                 challenge_title=challenge_title,
                 challenge_content=challenge_content,
                 board='LONG_TERM' if board == '장기' else 'SHORT_TERM',
                 created_date=timezone.now(),
                 start_date=timezone.now().date(),
-
                 end_date=timezone.now().date() + timezone.timedelta(days=duration) #duration 값을 int로 변환후 days = duration 해야함
             )
 
