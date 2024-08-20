@@ -4,6 +4,7 @@
 *.pyd
 __pycache__/
 *.env
+./challenges/migrations/**
 
 # 환경 설정 파일
 .env
