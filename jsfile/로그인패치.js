@@ -4,7 +4,7 @@ document.getElementById('loginbtn').addEventListener('click', function(event) {
     const username = document.getElementById('user-id').value;
     const password = document.getElementById('password').value;
 
-    fetch('/api/users/login', {
+    fetch('/api/users/login', {     
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

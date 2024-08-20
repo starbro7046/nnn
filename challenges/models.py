@@ -1,7 +1,8 @@
 from django.db import models
 
 class Users(models.Model):
-    username = models.CharField(primary_key=True, max_length=20)
+    id = models.AutoField(primary_key=True)
+    username = models.CharField(unique=True, max_length=20)
     password = models.CharField(max_length=128)
     email = models.CharField(max_length=30)
 
@@ -60,6 +61,7 @@ class Audio(models.Model):
 
 
 class Login(models.Model):
-    username = models.ForeignKey(Users, on_delete=models.CASCADE)
-    email = models.EmailField()
-    password = models.CharField(max_length=15)
+    id = models.AutoField(primary_key=True)
+    refresh_token = models.TextField()
+    user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
+    expired_date = models.DateField()

@@ -1,12 +1,14 @@
-# from .models import *
+
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.conf import settings
 from django.middleware.csrf import get_token
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from rest_framework.permissions import AllowAny
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password, check_password
+from ..models import Users, Login
+import datetime
+from config.utils.TokenUtil import TokenUtil
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,8 +30,7 @@ def csrf_token_view(request: HttpRequest) -> JsonResponse:
 
 
 # 1-1. 회원가입
-# @csrf_exempt
-@csrf_protect
+
 @permission_classes([AllowAny])
 def signup_view(request: HttpRequest) -> JsonResponse:
     if request.method == 'POST':
@@ -42,10 +43,10 @@ def signup_view(request: HttpRequest) -> JsonResponse:
             if not username or not password or not email:
                 return JsonResponse({'error': '모든 필드를 입력해야 합니다.'}, status=400)
 
-            if User.objects.filter(username=username).exists():
+            if Users.objects.filter(username=username).exists():
                 return JsonResponse({'error': '이미 존재하는 사용자입니다.'}, status=409)
 
-            user = User(username=username, password=make_password(password), email=email)
+            user = Users(username=username, password=make_password(password), email=email)
             user.save()
 
             # 사용자 생성 후 JWT 발급
@@ -68,7 +69,6 @@ def signup_view(request: HttpRequest) -> JsonResponse:
 
 # 1-2. 로그인
 # @csrf_exempt
-@csrf_protect
 def login_view(request: HttpRequest) -> JsonResponse:
     if request.method == 'POST':
         try:
@@ -78,9 +78,13 @@ def login_view(request: HttpRequest) -> JsonResponse:
 
             if not username or not password:
                 return JsonResponse({'error': '모든 필드를 입력해야 합니다.'}, status=400)
-
+            user = None
             # Authenticate user
-            user = authenticate(username=username, password=password)
+            if Users.objects.filter(username=username).exists():
+                user: Users = Users.objects.get(username=username)
+                if not check_password(password, user.password):
+                    return JsonResponse({"error": "unmatched password"})
+
             if user is None:
                 return JsonResponse({'error': '사용자 인증 실패'}, status=401)
 
@@ -88,6 +92,11 @@ def login_view(request: HttpRequest) -> JsonResponse:
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
+            expired_date = datetime.datetime.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+
+            login = Login(refresh_token=refresh_token, user_id=user,
+                          expired_date=expired_date)
+            Login.save(login)
 
             return JsonResponse({
                 'message': '로그인 성공',
@@ -104,30 +113,18 @@ def login_view(request: HttpRequest) -> JsonResponse:
         return JsonResponse({'error': '잘못된 요청'}, status=400)
 
 
-# 1-3. 로그아웃(확인해보지못함)
+# 1-3. 로그아웃
 @api_view(['POST'])
-def logout_view(request):
-    try:
-        # 클라이언트에서 전달된 refresh token 가져오기
-        refresh_token = request.data.get('refresh_token')
-        if not refresh_token:
-            return JsonResponse({'error': 'Refresh token이 필요합니다.'}, status=400)
+def logout_view(request: HttpRequest) -> JsonResponse:
+    token = TokenUtil.extract_token(request)
+    user_id = TokenUtil.extract_user_id(token)
 
-        # Refresh token을 블랙리스트에 추가
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-        except TokenError:
-            return JsonResponse({'error': '유효하지 않은 토큰입니다.'}, status=400)
-
-        return JsonResponse({'message': '로그아웃 성공'}, status=200)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
+    for login_user in Login.objects.filter(user_id=user_id):
+        Login.delete(login_user)
+    return JsonResponse({'result': '로그아웃 성공!'})
 
 # 1-4. 회원탈퇴
 
-@csrf_protect
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_account_view(request, username):
@@ -135,7 +132,7 @@ def delete_account_view(request, username):
         # 현재 요청한 사용자
         current_user = request.user
         # 삭제할 사용자 찾기
-        user_to_delete = User.objects.filter(username=username).first()
+        user_to_delete = Users.objects.filter(username=username).first()
         if not user_to_delete:
             return JsonResponse({'error': '사용자를 찾을 수 없습니다.'}, status=404)
         # 현재 사용자가 본인 또는 관리자일 때만 삭제 가능
@@ -149,7 +146,6 @@ def delete_account_view(request, username):
 
 
 # 1-5. 비밀번호 변경 (인증없이 새 비밀번호 변경)
-@csrf_protect
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password_view(request: HttpRequest) -> JsonResponse:
@@ -157,11 +153,11 @@ def change_password_view(request: HttpRequest) -> JsonResponse:
         user = request.user
         data = json.loads(request.body)
 
-        #현재 비밀번호, 새 비밀번호 입력받음
+        # 현재 비밀번호, 새 비밀번호 입력받음
         current_password = data.get('current_password')
         new_password = data.get('new_password')
 
-        #입력하지 않으면 에러
+        # 입력하지 않으면 에러
         if not current_password or not new_password:
             return JsonResponse({'error': '현재 비밀번호와 새 비밀번호를 모두 입력해야 합니다.'}, status=400)
 
@@ -180,10 +176,10 @@ def change_password_view(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-#1-6. 아이디찾기
+
+# 1-6. 아이디찾기
 
 # 1-6. 아이디 찾기
-@csrf_protect
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def find_username_view(request: HttpRequest) -> JsonResponse:
@@ -208,13 +204,13 @@ def find_username_view(request: HttpRequest) -> JsonResponse:
         return JsonResponse({'error': str(e)}, status=500)
 
 
+# 1-7. 비밀번호찾기,변경
 
-#1-7. 비밀번호찾기,변경
-
-import random    #랜덤비밀번호
+import random  # 랜덤비밀번호
 import string
 from django.core.mail import send_mail
-@csrf_protect
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def reset_password_view(request: HttpRequest) -> JsonResponse:
