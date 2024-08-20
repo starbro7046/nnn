@@ -8,20 +8,19 @@ import json
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+
+
+
 #챌린지 생성
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def challenge_create(request):
     if request.method == "POST":
-        if request.user.is_anonymous:
-            return JsonResponse({'status': 'error', 'message': '사용자가 로그인되지 않았습니다.'}, status=401)
 
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)
-
             user = request.user
-            if user.is_anonymous:
-                return JsonResponse({'status': 'error', 'message': '사용자가 인증되지 않았습니다.'}, status=401)
+
 
             # 필수 필드 추출
             board = data.get('board')
