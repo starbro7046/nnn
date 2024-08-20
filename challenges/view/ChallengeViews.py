@@ -8,7 +8,6 @@ import json
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-
 #챌린지 생성
 #@permission_classes([IsAuthenticated])
 def challenge_create(request):
@@ -20,12 +19,19 @@ def challenge_create(request):
             # JSON 데이터 파싱
             data = json.loads(request.body)
 
+            user = request.user
+            if user.is_anonymous:
+                return JsonResponse({'status': 'error', 'message': '사용자가 인증되지 않았습니다.'}, status=401)
+
             # 필수 필드 추출
             board = data.get('board')
             challenge_title = data.get('challenge_title')
             challenge_content = data.get('challenge_content')
-            duration = data.get('duration')
+            duration_str = data.get('duration')
           # images = data.get('images', [])
+
+            duration = int(''.join(filter(str.isdigit, duration_str)))
+
 
             # 필수 필드 검증
             if not board or not challenge_title or not challenge_content:
@@ -33,24 +39,16 @@ def challenge_create(request):
 
             # 새로운 챌린지 인스턴스 생성
             challenge = Challenges(
-                created_username=request.user,
+                created_username=user,
                 challenge_title=challenge_title,
                 challenge_content=challenge_content,
                 board='LONG_TERM' if board == '장기' else 'SHORT_TERM',
                 created_date=timezone.now(),
                 start_date=timezone.now().date(),
-                end_date=timezone.now().date() + timezone.timedelta(days=10) #duration 값을 int로 변환후 days = duration 해야함
+
+                end_date=timezone.now().date() + timezone.timedelta(days=duration) #duration 값을 int로 변환후 days = duration 해야함
             )
 
-            # 장기 챌린지인 경우 duration 필드를 설정
-            if challenge.board == 'LONG_TERM':
-                if duration:
-                    try:
-                        challenge.duration = int(duration.replace('일', ''))
-                    except ValueError:
-                        return JsonResponse({'status': 'error', 'message': '유효하지 않은 duration 값입니다.'}, status=400)
-                else:
-                    return JsonResponse({'status': 'error', 'message': 'Duration 값이 필요합니다.'}, status=400)
 
             # 챌린지 저장
             challenge.save()
@@ -111,6 +109,8 @@ def challenge_detail(request, board, challenge_id):
         return JsonResponse({'status': 'error', 'message' : str(e)}, status=500)
 
 #챌린지 생성(장기)
+
+
 
 #챌린지 생성(단기)
 
