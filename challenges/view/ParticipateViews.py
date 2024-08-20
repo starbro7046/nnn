@@ -13,7 +13,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models import ChallengeParticipation, Challenges
 from django.shortcuts import get_object_or_404
-
+from rest_framework_simplejwt.tokens import AccessToken
+from django.utils.dateparse import parse_date
 
 #챌린지 참가 버튼
 
@@ -50,3 +51,63 @@ def participate_in_challenge(request, challenge_id):
 #        printf("post method입니다")    //글 작성
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def post_write(request, board, challenge_id):
+    if request.method == 'POST':
+        try:
+            # 인증된 사용자 가져오기
+            user = request.user
+
+            # 요청 데이터 파싱
+            data = json.loads(request.body)
+            post_title = data.get('post_title')
+            post_content = data.get('post_content')
+            # images = data.get('images', [])
+            # video = data.get('video', {})
+            # audio = data.get('audio', {})
+
+            # 챌린지 유효성 검사
+            try:
+                challenge = Challenges.objects.get(id=challenge_id, board=board)
+            except Challenges.DoesNotExist:
+                return JsonResponse({'error': 'Challenge not found'}, status=404)
+
+            # 챌린지 참여 여부 확인
+            if not ChallengeParticipation.objects.filter(user=user, challenge=challenge).exists():
+                return JsonResponse({'error': 'User not participating in this challenge'}, status=403)
+
+            # 인증글 생성
+            post = Post.objects.create(
+                username=user,
+                challenge_id=challenge,
+                post_title=post_title,
+                posted_date=parse_date(request.POST.get('posted_date', None)),  # 날짜는 요청에서 제공될 경우
+                post_content=post_content
+            )
+
+            # # 이미지 저장
+            # for img in images:
+            #     Images.objects.create(
+            #         post_id=post,
+            #         image_url=img.get('key')
+            #     )
+            #
+            # # 비디오 저장
+            # if video:
+            #     Videos.objects.create(
+            #         post_id=post,
+            #         video_url=video.get('key')
+            #     )
+            #
+            # # 오디오 저장
+            # if audio:
+            #     Audio.objects.create(
+            #         post_id=post,
+            #         audio_url=audio.get('key')
+            #     )
+
+            return JsonResponse({'message': 'Post created successfully'}, status=201)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
