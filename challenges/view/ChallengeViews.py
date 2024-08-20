@@ -19,7 +19,6 @@ def challenge_create(request):
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)
-            user = request.user
 
 
             # 필수 필드 추출
@@ -38,7 +37,7 @@ def challenge_create(request):
 
             # 새로운 챌린지 인스턴스 생성
             challenge = Challenges(
-                created_username=user,
+                created_username=request.user,
                 challenge_title=challenge_title,
                 challenge_content=challenge_content,
                 board='LONG_TERM' if board == '장기' else 'SHORT_TERM',
@@ -69,9 +68,44 @@ def challenge_create(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 #챌린지 목록 조회
-def challenge_list(request):
-    challengelist = Challenges.objects.all()
-    return render(request, 'challenges/challengeList.html', {'challengelist': challengelist})
+def challenge_list(request, board):
+    try:
+        # 페이지와 사이즈 파라미터 가져오기
+        page = int(request.GET.get('page', 1))
+        size = int(request.GET.get('size', 10))
+
+        # 필터링할 board 값
+        if board not in ['LONG_TERM', 'SHORT_TERM']:
+            return JsonResponse({'error': 'Invalid board parameter'}, status=400)
+
+        # 챌린지 목록 조회
+        challenges = Challenges.objects.filter(board=board)
+
+        # 페이징 처리
+        paginator = Paginator(challenges, size)
+        page_obj = paginator.get_page(page)
+
+        # 결과를 JSON 형식으로 변환
+        response_data = {
+            'page': page_obj.number,
+            'size': size,
+            'totalPages': paginator.num_pages,
+            'totalItems': paginator.count,
+            'posts': [
+                {
+                    'challenge_id': challenge.id,
+                    'challenge_title': challenge.challenge_title,
+                    'created_username': challenge.created_username.username,
+                }
+                for challenge in page_obj.object_list
+            ]
+        }
+
+        return JsonResponse(response_data, safe=False)
+
+    except Exception as e:
+        # 서버 오류 처리
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 #챌린지 상세 조회
@@ -107,11 +141,6 @@ def challenge_detail(request, board, challenge_id):
         # 서버 오류
         return JsonResponse({'status': 'error', 'message' : str(e)}, status=500)
 
-#챌린지 생성(장기)
-
-
-
-#챌린지 생성(단기)
 
 #챌린지 참가 버튼
 
