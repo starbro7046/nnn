@@ -125,14 +125,16 @@ def logout_view(request: HttpRequest) -> JsonResponse:
 
 
 # 1-4. 회원탈퇴
-@api_view(['DELETE'])
+#def delete_account_view(request, username):
 @permission_classes([IsAuthenticated])
+@api_view(['DELETE'])
 def delete_account_view(request, username):
     try:
+        # print(f"Current user: {request.user.username}")  # 로그에 현재 사용자 정보 출력
         # 현재 요청한 사용자
         current_user = request.user
         # 삭제할 사용자 찾기
-        user_to_delete = Users.objects.filter(username=username).first()
+        user_to_delete = Users.objects.filter(username=current_user.username).first()
         if not user_to_delete:
             return JsonResponse({'error': '사용자를 찾을 수 없습니다.'}, status=404)
         # 현재 사용자가 본인 또는 관리자일 때만 삭제 가능
@@ -147,7 +149,7 @@ def delete_account_view(request, username):
 
 # 1-5. 비밀번호 변경 (인증없이 새 비밀번호 변경)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def change_password_view(request: HttpRequest) -> JsonResponse:
     try:
         user = request.user
@@ -176,8 +178,6 @@ def change_password_view(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
-# 1-6. 아이디찾기
 
 # 1-6. 아이디 찾기
 @api_view(['POST'])
