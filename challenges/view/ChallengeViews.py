@@ -5,6 +5,8 @@ from ..forms.ChallengeForm import challengeForm
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 #챌린지 생성
 def challenge_create(request):
@@ -42,6 +44,7 @@ def challenge_create(request):
 
 
 #챌린지 생성
+#@permission_classes([IsAuthenticated])
 def challenge_create(request):
     if request.method == "POST":
         try:

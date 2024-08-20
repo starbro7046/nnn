@@ -125,7 +125,6 @@ def logout_view(request: HttpRequest) -> JsonResponse:
 
 
 # 1-4. 회원탈퇴
-#def delete_account_view(request, username):
 @permission_classes([IsAuthenticated])
 @api_view(['DELETE'])
 def delete_account_view(request, username):

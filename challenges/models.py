@@ -65,3 +65,12 @@ class Login(models.Model):
     refresh_token = models.TextField()
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     expired_date = models.DateField()
+
+
+class ChallengeParticipation(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(Challenges, on_delete=models.CASCADE)
+    #joined_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'challenge')
