@@ -121,7 +121,7 @@ def logout_view(request: HttpRequest) -> JsonResponse:
 
     for login_user in Login.objects.filter(user_id=user_id):
         Login.delete(login_user)
-    return JsonResponse({'result': '로그아웃 성공!'})
+        return JsonResponse({'result': '로그아웃 성공!'})
 
 
 # 1-4. 회원탈퇴

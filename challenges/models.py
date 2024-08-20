@@ -8,6 +8,7 @@ class Users(models.Model):
 
 
 class Challenges(models.Model):
+    id = models.AutoField(primary_key=True)  #challengeid추가
     board_option1 = 'LONG_TERM'
     board_option2 = 'SHORT_TERM'
 
@@ -26,9 +27,8 @@ class Challenges(models.Model):
     end_date = models.DateField()
 
 
-
 class Post(models.Model):
-    post_id = models.AutoField(primary_key=True)   #postid추가
+    id = models.AutoField(primary_key=True)   #postid추가
     username = models.ForeignKey(Users, on_delete=models.CASCADE)
     challenge_id = models.ForeignKey(Challenges, on_delete=models.CASCADE)
     post_title = models.CharField(max_length=100)
