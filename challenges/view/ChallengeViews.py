@@ -10,6 +10,9 @@ import json
 #챌린지 생성
 def challenge_create(request):
     if request.method == "POST":
+        if request.user.is_anonymous:
+            return JsonResponse({'status': 'error', 'message': '사용자가 로그인되지 않았습니다.'}, status=401)
+
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)
@@ -32,8 +35,8 @@ def challenge_create(request):
                 challenge_content=challenge_content,
                 board='LONG_TERM' if board == '장기' else 'SHORT_TERM',
                 created_date=timezone.now(),
-                start_date=timezone.now().date(),  # 예시로 현재 날짜 사용
-                end_date=timezone.now().date() + timezone.timedelta(days=30)
+                start_date=timezone.now().date(),
+                end_date=timezone.now().date() + timezone.timedelta(days=10) #duration 값을 int로 변환후 days = duration 해야함
             )
 
             # 장기 챌린지인 경우 duration 필드를 설정
