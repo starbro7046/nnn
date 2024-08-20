@@ -123,8 +123,8 @@ def logout_view(request: HttpRequest) -> JsonResponse:
         Login.delete(login_user)
     return JsonResponse({'result': '로그아웃 성공!'})
 
-# 1-4. 회원탈퇴
 
+# 1-4. 회원탈퇴
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_account_view(request, username):
@@ -191,7 +191,7 @@ def find_username_view(request: HttpRequest) -> JsonResponse:
             return JsonResponse({'error': '이메일을 입력해야 합니다.'}, status=400)
 
         # 이메일로 사용자 찾기
-        user = User.objects.filter(email=email).first()
+        user = Users.objects.filter(email=email).first()
 
         if user is None:
             return JsonResponse({'error': '해당 이메일로 등록된 사용자를 찾을 수 없습니다.'}, status=404)
@@ -222,7 +222,7 @@ def reset_password_view(request: HttpRequest) -> JsonResponse:
             return JsonResponse({'error': '이메일을 입력해야 합니다.'}, status=400)
 
         # 이메일로 사용자 찾기
-        user = User.objects.filter(email=email).first()
+        user = Users.objects.filter(email=email).first()
 
         if user is None:
             return JsonResponse({'error': '해당 이메일로 등록된 사용자를 찾을 수 없습니다.'}, status=404)
