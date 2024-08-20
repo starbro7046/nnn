@@ -18,14 +18,14 @@ from django.shortcuts import get_object_or_404
 #챌린지 참가 버튼
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def participate_in_challenge(request):
+#@permission_classes([IsAuthenticated])  //로그인한사용자만
+def participate_in_challenge(request, challenge_id):
     try:
         data = request.data
         challenge_id = data.get('challenge_id')
 
-        # 챌린지 찾기
-        challenge = get_object_or_404(Challenges, id=challenge_id)
+        # 챌린지
+        challenge = challenge_id
 
         # 현재 사용자
         user = request.user
@@ -43,5 +43,10 @@ def participate_in_challenge(request):
         return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+#챌린지 인증글 작성
+
+#def post_write(request):
+#    if request.method == "POST":
+#        printf("post method입니다")    //글 작성
 
 
