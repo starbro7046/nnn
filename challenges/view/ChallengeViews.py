@@ -124,11 +124,7 @@ def challenge_detail(request, board, challenge_id):
             #'likes': 0,  # 좋아요 수를 추적하는 별도의 모델이 있을 경우, 여기서 가져와야 함
             'duration': f"{challenge.duration}일" if challenge.board == 'LONG_TERM' else "하루",
             'challenge_content': challenge.challenge_content,
-
-
-            # 이미지/비디오/오디오 관련.
-            # 이미지 파일 정보나 이미지 url을 가져옴
-
+            'images': challenge.images,
         }
         # JSON 응답 반환
         return JsonResponse(response_data, status=200)
