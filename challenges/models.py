@@ -26,6 +26,7 @@ class Challenges(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    images = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.challenge_title
@@ -52,24 +53,25 @@ class Bookmark(models.Model):
 
 
 class Images(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
-    image_url = models.TextField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image_url = models.URLField(blank=True, null=True)
+
 
 class Videos(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
-    video_url = models.TextField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    video_url = models.URLField(blank=True, null=True)
 
 
 class Audio(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
-    audio_url = models.TextField()
-
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    audio_url = models.URLField(blank=True, null=True)
 
 class Login(models.Model):
     id = models.AutoField(primary_key=True)
     refresh_token = models.TextField()
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     expired_date = models.DateField()
+
 
 #추가: 챌린지에 참가한 사람 정보
 class ChallengeParticipation(models.Model):
@@ -79,6 +81,7 @@ class ChallengeParticipation(models.Model):
 
     class Meta:
         unique_together = ('user', 'challenge')
+
 
 #추가: 좋아요
 class Like(models.Model):

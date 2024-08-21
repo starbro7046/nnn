@@ -15,6 +15,7 @@ from ..models import ChallengeParticipation, Challenges
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import AccessToken
 from django.utils.dateparse import parse_date
+from datetime import datetime
 
 #챌린지 참가 버튼
 
@@ -72,9 +73,12 @@ def post_write(request, board, challenge_id):
             data = json.loads(request.body)
             post_title = data.get('post_title')
             post_content = data.get('post_content')
-            # images = data.get('images', [])
-            # video = data.get('video', {})
-            # audio = data.get('audio', {})
+            images = data.get('images', [])
+            video = data.get('video', {})
+            audio = data.get('audio', {})
+
+            #현재 날짜와 시간 가져오기
+            posted_date = datetime.now()
 
             # 챌린지 유효성 검사
             try:
@@ -91,30 +95,30 @@ def post_write(request, board, challenge_id):
                 username=user,
                 challenge_id=challenge,
                 post_title=post_title,
-                posted_date=parse_date(request.POST.get('posted_date', None)),  # 날짜는 요청에서 제공될 경우
+                posted_date=posted_date,  # 현재 날짜와 시간 저장
                 post_content=post_content
             )
 
-            # # 이미지 저장
-            # for img in images:
-            #     Images.objects.create(
-            #         post_id=post,
-            #         image_url=img.get('key')
-            #     )
-            #
-            # # 비디오 저장
-            # if video:
-            #     Videos.objects.create(
-            #         post_id=post,
-            #         video_url=video.get('key')
-            #     )
-            #
-            # # 오디오 저장
-            # if audio:
-            #     Audio.objects.create(
-            #         post_id=post,
-            #         audio_url=audio.get('key')
-            #     )
+            # 이미지 저장
+            for img_url in images:
+                Images.objects.create(
+                    post=post,
+                    image_url=img_url
+                )
+
+            # 비디오 저장
+            if video:
+                Videos.objects.create(
+                    post=post,
+                    video_url=video.get('url')
+                )
+
+            # 오디오 저장
+            if audio:
+                Audio.objects.create(
+                    post=post,
+                    audio_url=audio.get('url')
+                )
 
             return JsonResponse({'message': 'Post created successfully'}, status=201)
         except json.JSONDecodeError:

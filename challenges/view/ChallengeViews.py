@@ -26,7 +26,7 @@ def challenge_create(request):
             challenge_title = data.get('challenge_title')
             challenge_content = data.get('challenge_content')
             duration_str = data.get('duration')
-          # images = data.get('images', [])
+            images = data.get('images', [])
 
             duration = int(''.join(filter(str.isdigit, duration_str)))
 
@@ -44,14 +44,14 @@ def challenge_create(request):
                 created_date=timezone.now(),
                 start_date=timezone.now().date(),
 
-                end_date=timezone.now().date() + timezone.timedelta(days=duration) #duration 값을 int로 변환후 days = duration 해야함
+                end_date=timezone.now().date() + timezone.timedelta(days=duration), #duration 값을 int로 변환후 days = duration 해야함
+
+                images = json.dumps(images)
             )
 
 
             # 챌린지 저장
             challenge.save()
-
-            #이미지 처리 방법 논의후 추가
 
             # 성공적인 응답 반환
             return JsonResponse({
