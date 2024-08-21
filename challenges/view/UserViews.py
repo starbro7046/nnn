@@ -1,19 +1,27 @@
-
+from django.contrib.auth import authenticate
 from django.shortcuts import render
 from django.conf import settings
 from django.middleware.csrf import get_token
 from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.hashers import make_password, check_password
-from ..models import Users, Login
 import datetime
 from config.utils.TokenUtil import TokenUtil
+from ..models import *
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 import json
+
+MOCK_USER_CREDENTIALS = {
+    'username': 'testuser',
+    'password': 'testpassword'
+}
 
 
 # 0.Test code-----------------------------------------------------------------------------------------------------
@@ -39,23 +47,21 @@ def signup_view(request: HttpRequest) -> JsonResponse:
             username = data.get('username')
             password = data.get('password')
             email = data.get('email')
-
-            if not username or not password or not email:
-                return JsonResponse({'error': '모든 필드를 입력해야 합니다.'}, status=400)
-
-            if Users.objects.filter(username=username).exists():
-                return JsonResponse({'error': '이미 존재하는 사용자입니다.'}, status=409)
-
-            user = Users(username=username, password=make_password(password), email=email)
-            user.save()
-
             # 사용자 생성 후 JWT 발급
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
+
+            user=Users.objects.filter(username=username).first();
+            if(user is None):
+                return JsonResponse({
+                    'message': '닌망했어',
+                    'access_token': 'ㅁㄴㄹㄴㅁㄹ',
+                    'refresh_token': 'ㅁㄴㄹㄻㄴ'
+                }, status=4444)
+            token = TokenObtainPairSerializer.get_token(user)
+            access_token = str(token.access_token)
+            refresh_token = str(token)
 
             return JsonResponse({
-                'message': '회원가입 성공',
+                'message': f'회원가입 성공 {username},{password},{email}, ',
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }, status=200)
@@ -78,25 +84,20 @@ def login_view(request: HttpRequest) -> JsonResponse:
 
             if not username or not password:
                 return JsonResponse({'error': '모든 필드를 입력해야 합니다.'}, status=400)
-            user = None
             # Authenticate user
-            if Users.objects.filter(username=username).exists():
-                user: Users = Users.objects.get(username=username)
-                if not check_password(password, user.password):
-                    return JsonResponse({"error": "unmatched password"})
 
-            if user is None:
-                return JsonResponse({'error': '사용자 인증 실패'}, status=401)
 
             # JWT 토큰 발급
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
-            expired_date = datetime.datetime.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-
-            login = Login(refresh_token=refresh_token, user_id=user,
-                          expired_date=expired_date)
-            Login.save(login)
+            user = Users.objects.filter(username=username).first();
+            if (user is None):
+                return JsonResponse({
+                    'message': '닌망했어',
+                    'access_token': 'ㅁㄴㄹㄴㅁㄹ',
+                    'refresh_token': 'ㅁㄴㄹㄻㄴ'
+                }, status=4444)
+            token = TokenObtainPairSerializer.get_token(user)
+            access_token = str(token.access_token)
+            refresh_token = str(token)
 
             return JsonResponse({
                 'message': '로그인 성공',
@@ -114,14 +115,23 @@ def login_view(request: HttpRequest) -> JsonResponse:
 
 
 # 1-3. 로그아웃
-@api_view(['POST'])
-def logout_view(request: HttpRequest) -> JsonResponse:
-    token = TokenUtil.extract_token(request)
-    user_id = TokenUtil.extract_user_id(token)
 
-    for login_user in Login.objects.filter(user_id=user_id):
-        Login.delete(login_user)
-        return JsonResponse({'result': '로그아웃 성공!'})
+@csrf_exempt
+def logout_view(request: HttpRequest) -> JsonResponse:
+    if request.method == 'POST':
+        try:
+
+            # 요청 헤더에서 토큰 가져오기
+            token = request.headers.get('Authorization').split()[1]
+            at=AccessToken(token)
+            b=at['username']
+            print(b)
+            #RefreshToken(token).blacklist()
+            return JsonResponse({'message': 'Logged out successfully'})
+        except (IndexError, TokenError):
+            return JsonResponse({'error': 'Invalid token'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 
 # 1-4. 회원탈퇴
@@ -133,14 +143,9 @@ def delete_account_view(request, username):
         # 현재 요청한 사용자
         current_user = request.user
         # 삭제할 사용자 찾기
-        user_to_delete = Users.objects.filter(username=current_user.username).first()
-        if not user_to_delete:
-            return JsonResponse({'error': '사용자를 찾을 수 없습니다.'}, status=404)
         # 현재 사용자가 본인 또는 관리자일 때만 삭제 가능
-        if current_user.username != username and not current_user.is_superuser:
-            return JsonResponse({'error': '권한이 없습니다.'}, status=403)
-        # 사용자 삭제
-        user_to_delete.delete()
+
+
         return JsonResponse({'message': '회원 탈퇴 성공'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
