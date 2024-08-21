@@ -3,19 +3,19 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from ..forms.ChallengeForm import challengeForm
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
 import json
-from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 
 
 
 #챌린지 생성
 @permission_classes([IsAuthenticated])
+@api_view(['POST'])
 def challenge_create(request):
     if request.method == "POST":
-
         try:
             # JSON 데이터 파싱
             data = json.loads(request.body)

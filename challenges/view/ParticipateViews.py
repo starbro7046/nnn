@@ -20,16 +20,25 @@ from django.utils.dateparse import parse_date
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  #로그인한사용자만
-def participate_in_challenge(request, challenge_id):
+def participate_in_challenge(request, board, challenge_id):
     try:
-        data = request.data
-        challenge_id = data.get('challenge_id')
-
-        # 챌린지
-        challenge = challenge_id
-
         # 현재 사용자
         user = request.user
+
+        data = json.loads(request.body)
+        username = data.get('username')
+
+        # 사용자 인스턴스 가져오기
+        try:
+            participant = Users.objects.get(username=username)
+        except Users.DoesNotExist:
+            return Response({'status': 'error', 'message': '사용자를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+        #챌린지 인스턴스 가져오기
+        try:
+            challenge = Challenges.objects.get(id=challenge_id, board=board)
+        except Challenges.DoesNotExist:
+            return Response({'status': 'error', 'message': '챌린지를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
         # 이미 참가한 챌린지인지 확인
         if ChallengeParticipation.objects.filter(user=user, challenge=challenge).exists():

@@ -10,3 +10,4 @@ admin.site.register(Challenges)
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
     list_display = ('username', 'email')
+

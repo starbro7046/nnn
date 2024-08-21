@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-class Users(models.Model):
+class Users(AbstractUser):
     id = models.AutoField(primary_key=True)
     username = models.CharField(unique=True, max_length=20)
     password = models.CharField(max_length=128)
@@ -25,6 +26,9 @@ class Challenges(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
+
+    def __str__(self):
+        return self.challenge_title
 
 
 class Post(models.Model):
